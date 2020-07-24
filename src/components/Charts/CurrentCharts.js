@@ -19,9 +19,9 @@ const chartConfigs = {
 
 let chartRef = FusionCharts("chartobject-1")
 
-export default function Chart() {
+const Chart=React.memo(() =>{
     const [isLoading, setLoading] = useState(true)
-    const [socketData,setSocketData]=useState('')
+    const [socketData, setSocketData] = useState('')
     const [dataSource, setDataSource] = useState({
         "chart": {
             "showShadow": 1,
@@ -30,8 +30,8 @@ export default function Chart() {
             "numDivLines": '10',
             "divLineColor": "#00A3F4",
             "numVDivLines": '10',
-            "vDivLineAlpha":40,
-            "vDivLineDashed":1,
+            "vDivLineAlpha": 40,
+            "vDivLineDashed": 1,
             "caption": "Bitcoin",
             "subCaption": "",
             "xAxisName": "Local Time",
@@ -56,39 +56,49 @@ export default function Chart() {
             }]
         }]
     })
- 
+
     useEffect(() => {
-        const subscribe = {
-            type: "subscribe",
-            channels: [
-                {
-                    name: "ticker",
-                    product_ids: ["BTC-USD"],
-                },
-            ],
-        };
+        let ws='';
+        try {
+            const subscribe = {
+                type: "subscribe",
+                channels: [
+                    {
+                        name: "ticker",
+                        product_ids: ["BTC-USD"],
+                    },
+                ],
+            };
 
-        const ws = new WebSocket("wss://ws-feed.gdax.com");
+            ws = new WebSocket("wss://ws-feed.gdax.com");
 
-        ws.onopen = () => {
-            ws.send(JSON.stringify(subscribe));
-        };
+            ws.onopen = () => {
+                ws.send(JSON.stringify(subscribe));
+            };
 
-        ws.onmessage = (e) => {
-            const value = JSON.parse(e.data);
-            if (value.type !== "ticker") {
-                return;
+            ws.onmessage = (e) => {
+                const value = JSON.parse(e.data);
+                if (value.type !== "ticker") {
+                    return;
+                }
+                setSocketData(value)
             }
-            setSocketData(value)
+        } catch (e) {
+            console.log(e)
         }
-        return ()=>{
-            ws.close();
+
+        return () => {
+            try {
+                ws.close();
+            } catch (e) {
+                console.log(e)
+            }
         }
     }, [])
 
 
     useEffect(() => {
-        if (socketData === '') {          
+        if (socketData === '') {
             let MyDataSource = dataSource;
             MyDataSource.chart.yAxisMaxValue = parseInt(socketData.price) + 100
             MyDataSource.chart.yAxisMinValue = parseInt(socketData.price) - 100
@@ -101,9 +111,9 @@ export default function Chart() {
             chartRef.feedData("&label=" + x_axis + "&value=" + y_axis);
 
         }
-   },[socketData])
+    }, [socketData])
 
-    
+
     const getChartRef = (chart) => {
         chartRef = chart;
     }
@@ -111,13 +121,15 @@ export default function Chart() {
 
     return (
         <>
-           {socketData !=='' && !isLoading && <h1 style={{color:'#000'}}>${socketData.price}</h1>}
+            {socketData !== '' && !isLoading && <h1 style={{ color: '#000' }}>${socketData.price}</h1>}
             <ReactFC
                 {...chartConfigs}
                 dataSource={dataSource}
                 onRender={getChartRef.bind(this)} />
         </>
-        
+
     )
 
-}
+})
+
+export default Chart

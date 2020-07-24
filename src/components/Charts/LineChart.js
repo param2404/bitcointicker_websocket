@@ -19,7 +19,7 @@ const chartConfigs = {
 };
 
 
-export default function Chart(props) {
+const LineChart=React.memo((props)=> {
     const [isLoading, setLoading] = useState(true)
     const [data, setData] = useState([])
     const {startDate,endDate,xaxis}=props
@@ -84,4 +84,6 @@ export default function Chart(props) {
             dataSource={{ ...dataSource, data }} /> : <h3 style={{ color: '#000' }}>Loading...Please Wait..</h3>
     )
 
-}
+})
+
+export default LineChart

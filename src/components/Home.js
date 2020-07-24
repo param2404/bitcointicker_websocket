@@ -1,36 +1,13 @@
 /* eslint-disable */
 import React from 'react'
-import PropTypes from 'prop-types'
+import TabPanel from './TabPanel'
 import SwipeableViews from 'react-swipeable-views'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
-import { AppBar, Tabs, Tab, Typography, Box } from '@material-ui/core'
+import { AppBar, Tabs, Tab} from '@material-ui/core'
 import Chart from './Charts/CurrentCharts'
 import LineChart from './Charts/LineChart'
 import moment from 'moment';
 
-
-function TabPanel(props) {
-    const { children, value, index, ...other } = props
-
-    return (
-        <Typography
-            component="div"
-            role="tabpanel"
-            hidden={value !== index}
-            id={`full-width-tabpanel-${index}`}
-            aria-labelledby={`full-width-tab-${index}`}
-            {...other}
-        >
-            {value === index && <Box p={3}>{children}</Box>}
-        </Typography>
-    )
-}
-
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-}
 
 function a11yProps(index) {
     return {
@@ -50,6 +27,8 @@ export default function FullWidthTabs() {
     const classes = useStyles()
     const theme = useTheme()
     const [value, setValue] = React.useState(0)
+    const end = moment(new Date()).format('YYYY-MM-DD')
+   
 
     const handleChange = (event, newValue) => {
         setValue(newValue)
@@ -73,7 +52,7 @@ export default function FullWidthTabs() {
                     <Tab label="RealTime" {...a11yProps(0)} />
                     <Tab label="Year Data" {...a11yProps(1)} />
                     <Tab label="Month Data" {...a11yProps(2)} />
-                    <Tab label="Today" {...a11yProps(3)} />
+                    <Tab label="Yesterday" {...a11yProps(3)} />
                 </Tabs>
             </AppBar>
             <SwipeableViews
@@ -87,19 +66,19 @@ export default function FullWidthTabs() {
                 <TabPanel value={value} index={1} dir={theme.direction}>
                     <LineChart
                         xaxis="Month"
-                        endDate={moment(new Date()).format('YYYY-MM-DD')}
+                        endDate={end}
                         startDate={moment(new Date().setDate(new Date().getDate() - 365)).format('YYYY-MM-DD')}/>
                 </TabPanel>
                 <TabPanel value={value} index={2} dir={theme.direction}>
                     <LineChart
                         xaxis="Day"
-                        endDate={moment(new Date()).format('YYYY-MM-DD')}
+                        endDate={end}
                         startDate={moment(new Date().setDate(new Date().getDate() - 31)).format('YYYY-MM-DD')} />
                 </TabPanel>
                 <TabPanel value={value} index={3} dir={theme.direction}>
                     <LineChart
                         xaxis="Today"
-                        endDate={moment(new Date()).format('YYYY-MM-DD')}
+                        endDate={end}
                         startDate={moment(new Date().setDate(new Date().getDate() - 1)).format('YYYY-MM-DD')}/>
                 </TabPanel>
             </SwipeableViews>
